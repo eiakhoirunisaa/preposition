@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preposition Showdown</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+        }
+
+        .feedback-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            border-radius: 1.5rem;
+            z-index: 10;
+        }
+
+        .feedback-overlay.show {
+            display: flex;
+            animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .winning-team {
+            animation: bounce 1s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start p-4">
+
+    <!-- Game Header -->
+    <div id="game-header" class="w-full max-w-6xl flex justify-between items-center mb-4 px-4 mt-4">
+        <div class="bg-yellow-400 px-6 py-2 rounded-full shadow-[0_4px_0_rgb(180,140,0)] flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-900"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <span class="font-black text-2xl text-yellow-900 tracking-tighter uppercase">Arena</span>
+        </div>
+        
+        <button onclick="resetScores()" class="px-6 py-2 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-b-4 border-gray-900 transition-all active:translate-y-1 active:border-b-0 uppercase font-black text-sm">
+            Reset Scores
+        </button>
+    </div>
+
+    <!-- Reference Section -->
+    <div class="w-full max-w-6xl mb-6 px-4">
+        <div class="bg-white/10 border-2 border-white/20 rounded-3xl p-4 flex flex-wrap justify-center gap-6">
+            <div class="flex flex-col items-center">
+                <div class="w-20 h-20 bg-white rounded-xl mb-1 p-1 overflow-hidden">
+                    <img src="https://lh3.googleusercontent.com/d/15T7z8iWaGKEHjJCfG-n0hOIBk1jC2Wz8" class="w-full h-full object-contain">
+                </div>
+                <span class="text-white font-black text-xs uppercase tracking-widest">ON</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="w-20 h-20 bg-white rounded-xl mb-1 p-1 overflow-hidden">
+                    <img src="https://lh3.googleusercontent.com/d/1jG5dGvU76e6ZbWj4l_iyrYqgfSZ99mr5" class="w-full h-full object-contain">
+                </div>
+                <span class="text-white font-black text-xs uppercase tracking-widest">IN</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="w-20 h-20 bg-white rounded-xl mb-1 p-1 overflow-hidden">
+                    <img src="https://lh3.googleusercontent.com/d/1nCQBK3X7GHQE0UMfou8XU4PJYP1Yq8o9" class="w-full h-full object-contain">
+                </div>
+                <span class="text-white font-black text-xs uppercase tracking-widest">UNDER</span>
+            </div>
+        </div>
+    </div>
+
+    <main class="w-full max-w-6xl">
+        <!-- GAME ARENA -->
+        <section id="game-screen" class="w-full flex flex-col md:flex-row gap-6 h-auto md:h-[60vh]">
+            <!-- Red Team -->
+            <div class="flex-1 flex flex-col p-6 rounded-3xl border-4 border-red-500 bg-red-50 transition-all duration-300 shadow-xl relative overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 rounded-full bg-red-200"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+                        <h2 class="text-xl font-black uppercase tracking-wider text-red-600">Red Player</h2>
+                    </div>
+                    <div id="score-red" class="text-3xl font-black tabular-nums">0</div>
+                </div>
+                <div class="bg-white rounded-2xl p-4 flex-1 flex items-center justify-center shadow-inner border-2 border-gray-100 mb-6 relative group min-h-[200px]">
+                    <img id="img-red" src="" alt="Question" class="max-w-full max-h-full object-contain rounded-lg">
+                    <div id="feedback-red" class="feedback-overlay"><span class="text-6xl font-black"></span></div>
+                </div>
+                <div class="flex flex-row gap-2">
+                    <button onclick="checkAnswer('red', 'ON')" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-black py-4 rounded-xl shadow-lg transform active:scale-95 transition-all text-lg tracking-tight uppercase">ON</button>
+                    <button onclick="checkAnswer('red', 'IN')" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-black py-4 rounded-xl shadow-lg transform active:scale-95 transition-all text-lg tracking-tight uppercase">IN</button>
+                    <button onclick="checkAnswer('red', 'UNDER')" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-black py-4 rounded-xl shadow-lg transform active:scale-95 transition-all text-lg tracking-tight uppercase">UNDER</button>
+                </div>
+            </div>
+
+            <!-- Blue Team -->
+            <div class="flex-1 flex flex-col p-6 rounded-3xl border-4 border-blue-500 bg-blue-50 transition-all duration-300 shadow-xl relative overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 rounded-full bg-blue-200"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+                        <h2 class="text-xl font-black uppercase tracking-wider text-blue-600">Blue Player</h2>
+                    </div>
+                    <div id="score-blue" class="text-3xl font-black tabular-nums">0</div>
+                </div>
+                <div class="bg-white rounded-2xl p-4 flex-1 flex items-center justify-center shadow-inner border-2 border-gray-100 mb-6 relative group min-h-[200px]">
+                    <img id="img-blue" src="" alt="Question" class="max-w-full max-h-full object-contain rounded-lg">
+                    <div id="feedback-blue" class="feedback-overlay"><span class="text-6xl font-black"></span></div>
+                </div>
+                <div class="flex flex-row gap-2">
+                    <button onclick="checkAnswer('blue', 'ON')" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg transform active:scale-95 transition-all text-lg tracking-tight uppercase">ON</button>
+                    <button onclick="checkAnswer('blue', 'IN')" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg transform active:scale-95 transition-all text-lg tracking-tight uppercase">IN</button>
+                    <button onclick="checkAnswer('blue', 'UNDER')" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg transform active:scale-95 transition-all text-lg tracking-tight uppercase">UNDER</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-8 text-gray-500 font-bold uppercase tracking-widest text-xs text-center">
+        Side-by-Side Preposition Battle Arena
+    </footer>
+
+    <script>
+        const assets = [
+            { id: 'on', url: 'https://lh3.googleusercontent.com/d/15T7z8iWaGKEHjJCfG-n0hOIBk1jC2Wz8', answer: 'ON' },
+            { id: 'in', url: 'https://lh3.googleusercontent.com/d/1jG5dGvU76e6ZbWj4l_iyrYqgfSZ99mr5', answer: 'IN' },
+            { id: 'under', url: 'https://lh3.googleusercontent.com/d/1nCQBK3X7GHQE0UMfou8XU4PJYP1Yq8o9', answer: 'UNDER' }
+        ];
+
+        let state = {
+            scores: { red: 0, blue: 0 },
+            currentQuestions: { red: null, blue: null }
+        };
+
+        function setQuestion(player) {
+            const random = assets[Math.floor(Math.random() * assets.length)];
+            state.currentQuestions[player] = random;
+            document.getElementById(`img-${player}`).src = random.url;
+        }
+
+        function checkAnswer(player, answer) {
+            const feedbackDiv = document.getElementById(`feedback-${player}`);
+            const feedbackText = feedbackDiv.querySelector('span');
+            
+            if (feedbackDiv.classList.contains('show')) return;
+
+            if (answer === state.currentQuestions[player].answer) {
+                state.scores[player]++;
+                document.getElementById(`score-${player}`).innerText = state.scores[player];
+                feedbackText.innerText = '✓';
+                feedbackText.className = 'text-6xl font-black text-green-500';
+            } else {
+                feedbackText.innerText = '✗';
+                feedbackText.className = 'text-6xl font-black text-red-500';
+            }
+
+            feedbackDiv.classList.add('show');
+            setTimeout(() => {
+                feedbackDiv.classList.remove('show');
+                setQuestion(player);
+            }, 400);
+        }
+
+        function resetScores() {
+            state.scores = { red: 0, blue: 0 };
+            document.getElementById('score-red').innerText = '0';
+            document.getElementById('score-blue').innerText = '0';
+            setQuestion('red');
+            setQuestion('blue');
+        }
+
+        // Initialize immediately
+        window.onload = () => {
+            setQuestion('red');
+            setQuestion('blue');
+        };
+    </script>
+</body>
+</html>
